@@ -1,7 +1,7 @@
 
 -- SQL Server 2019 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: March 7, 2023
+-- Last Modified: July 1, 2023
 -- https://glennsqlperformance.com/ 
 -- https://sqlserverperformance.wordpress.com/
 -- YouTube: https://bit.ly/2PkoAM1 
@@ -91,8 +91,9 @@ SELECT @@SERVERNAME AS [Server Name], @@VERSION AS [SQL Server and OS Version In
 -- 15.0.4249.2		CU17								8/11/2022		https://support.microsoft.com/en-us/topic/kb5016394-cumulative-update-17-for-sql-server-2019-3033f654-b09d-41aa-8e49-e9d0c353c5f7
 -- 15.0.4261.1		CU18								9/28/2022		https://support.microsoft.com/en-us/topic/kb5017593-cumulative-update-18-for-sql-server-2019-5fa00c36-edeb-446c-94e3-c4882b7526bc
 -- 15.0.4280.7		CU18 GDR							2/14/2023		https://support.microsoft.com/en-us/topic/kb5021124-description-of-the-security-update-for-sql-server-2019-cu18-february-14-2023-cfb75a0a-33dc-4e05-8645-4cf16fcec049
--- 15.0.4298.1		CU19								2/16/2023		https://support.microsoft.com/en-us/topic/kb5023049-cumulative-update-19-for-sql-server-2019-b63d7163-e2e7-46f7-b50a-c3d1f2913219	
-
+-- 15.0.4298.1		CU19								2/16/2023		https://support.microsoft.com/en-us/topic/kb5023049-cumulative-update-19-for-sql-server-2019-b63d7163-e2e7-46f7-b50a-c3d1f2913219
+-- 15.0.4312.2		CU20								4/13/2023		https://support.microsoft.com/en-us/topic/kb5024276-cumulative-update-20-for-sql-server-2019-4b282be9-b559-46ac-9b6a-badbd44785d2
+-- 15.0.4316.3		CU21								6/15/2022		https://learn.microsoft.com/en-us/troubleshoot/sql/releases/sqlserver-2019/cumulativeupdate21
 
 -- How to determine the version, edition and update level of SQL Server and its components 
 -- https://bit.ly/2oAjKgW	
@@ -594,10 +595,15 @@ ORDER BY creation_time DESC OPTION (RECOMPILE);
 
 
 -- Look at Suspect Pages table (Query 22) (Suspect Pages)
-SELECT DB_NAME(database_id) AS [Database Name], [file_id], page_id, 
-       event_type, error_count, last_update_date 
-FROM msdb.dbo.suspect_pages WITH (NOLOCK)
-ORDER BY database_id OPTION (RECOMPILE);
+SELECT DB_NAME(sp.database_id) AS [Database Name], 
+       sp.[file_id], sp.page_id, sp.event_type, 
+	   sp.error_count, sp.last_update_date,
+	   mf.name AS [Logical Name], mf.physical_name AS [File Path]
+FROM msdb.dbo.suspect_pages AS sp WITH (NOLOCK)
+INNER JOIN sys.master_files AS mf WITH (NOLOCK)
+ON mf.database_id = sp.database_id 
+AND mf.file_id = sp.file_id
+ORDER BY sp.database_id OPTION (RECOMPILE);
 ------
 
 -- event_type value descriptions

@@ -37,6 +37,8 @@ SELECT	db_name(database_id) as database_name,
 		last_commit_time,
 		log_send_queue_size,
 		redo_queue_size,
+		redo_rate,
+		(redo_queue_size/redo_rate)/60 AS MinutesPending,
 		secondary_lag_seconds
 FROM	sys.dm_hadr_database_replica_states rep_state
 INNER JOIN sys.availability_replicas ar ON rep_state.replica_id = ar.replica_id AND rep_state.group_id = ar.group_id
