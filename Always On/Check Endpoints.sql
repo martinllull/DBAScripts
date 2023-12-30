@@ -39,3 +39,9 @@ ALTER AUTHORIZATION ON ENDPOINT::EndPointName TO NewOwner;
 GO
 GRANT CONNECT ON ENDPOINT::EndPointName TO [UserName];
 GO
+
+/* Delete an endpoint */
+USE [master]
+GO
+DROP ENDPOINT endpointName;
+GO
